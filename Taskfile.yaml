@@ -1,0 +1,7 @@
+version: '3'
+
+includes:
+  ci: taskfiles/ci.yaml
+  local: taskfiles/local.yaml
+  setup: taskfiles/setup.yaml
+  docs: taskfiles/docs.yaml

@@ -1,0 +1,23 @@
+version: '3'
+
+
+tasks:
+  build:
+    desc: "Build the docs"
+    cmds:
+      - source venv/bin/activate && mkdocs build
+    sources:
+      - docs/
+      - mkdocs.yml
+    generates:
+      - site/
+  open:
+    desc: "Open docs in default browser"
+    deps:
+      - build
+    cmds:
+      - open "site/index.html"
+  serve:
+    desc: "Starts webserver for live updates while editing docs"
+    cmds:
+      - source venv/bin/activate && mkdocs serve

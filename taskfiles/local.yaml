@@ -1,0 +1,79 @@
+version: '3'
+
+tasks:
+  pip-compile-dev:
+    desc: "compile both dev and normal requirements.in into requirements-dev-txt."
+    cmds:
+      - source venv/bin/activate && pip-compile requirements-dev.in requirements.in --output-file requirements-dev.txt
+    sources:
+      - requirements*
+    generates:
+      - requirements-dev.txt
+  pip-sync-dev:
+    desc: "sync the current venv with requirements-dev.txt"
+    cmds:
+      - source venv/bin/activate && pip-sync requirements-dev.txt
+  pip-compile-prod:
+    desc: "compile normal requirements.in into requirements.txt."
+    cmds:
+      - source venv/bin/activate && pip-compile requirements.in --output-file requirements.txt
+    sources:
+      - requirements.in
+    generates:
+      - requirements.txt
+  pip-sync-prod:
+    desc: "sync the current venv with requirement.txt"
+    cmds:
+      - source venv/bin/activate && pip-sync requirements.txt
+  format-dags:
+    desc: "run isort and black to format dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && isort dags
+      - source venv/bin/activate && black dags
+  format-tests:
+    desc: "run isort and black to format dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && isort tests
+      - source venv/bin/activate && black tests
+  lint-dags:
+    desc: "run isort, black, and flake8 to lint dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && isort --check-only dags
+      - source venv/bin/activate && black --check dags
+      - source venv/bin/activate && flake8 dags
+  lint-tests:
+    desc: "run isort, black, and flake8 to lint dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && isort --check-only tests
+      - source venv/bin/activate && black --check tests
+      - source venv/bin/activate && flake8 tests
+  mypy-dags:
+    desc: "run mypy on dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && mypy  --namespace-packages --explicit-package-bases dags/
+    env:
+      PYTHON_PATH: ./dags
+  scan-dags:
+    desc: "Run bandit and xenon on dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && xenon -b B -m A -a A dags/
+  test-dags:
+    desc: "Run Pytest on dags"
+    cmds:
+      - task: pip-sync-dev
+      - source venv/bin/activate && pytest .
+  full-check:
+    desc: "run a full check on dags"
+    cmds:
+      - task: lint-dags
+      - task: lint-tests
+      - task: mypy-dags
+      - task: scan-dags
+      - task: test-dags
+
