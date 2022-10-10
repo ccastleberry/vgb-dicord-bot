@@ -3,14 +3,13 @@ name: CI
 # This workflow run tests and build for each push
 
 on:
-  push:
+  pull-request:
     branches:
-      - main
-      - 'feature-**'
+      - master
 
 jobs:
 
-  test_phaser:
+  test_and_lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -35,18 +34,3 @@ jobs:
         run: |
           cargo check
           cargo test --all  
-
-
-
-  build_phaser:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Build Docker
-        run: |
-          make docker
-
-      - name: Docker image info
-        run: |
-          docker images
